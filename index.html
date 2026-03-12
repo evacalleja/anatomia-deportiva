@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anatomía y Rendimiento Deportivo - 1º Bachillerato</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .muscle-highlight {
+            transition: all 0.5s ease;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-shadow {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .img-overlay {
+            background: linear-gradient(0deg, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.2) 100%);
+        }
+
+        .loading-shimmer {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Encabezado -->
+        <header class="mb-12 text-center">
+            <h1 class="text-4xl font-extrabold text-slate-900 mb-3 tracking-tight">Atlas de Anatomía Deportiva</h1>
+            <p class="text-slate-500 text-lg max-w-2xl mx-auto italic">Recurso interactivo para Educación Física - 1º Bachillerato</p>
+            <div class="mt-8">
+                <button id="copyBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-2xl text-sm font-bold transition-all shadow-lg flex items-center gap-2 mx-auto">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                    </svg>
+                    Compartir Material
+                </button>
+            </div>
+        </header>
+
+        <!-- Selector de Músculos -->
+        <div class="bg-white p-6 rounded-3xl card-shadow border border-slate-100 mb-10">
+            <div class="flex flex-col md:flex-row items-center gap-6">
+                <div class="flex-1 w-full">
+                    <label for="muscleSelector" class="block text-xs font-black text-indigo-500 uppercase tracking-widest mb-2 ml-1">Anatomía Humana:</label>
+                    <select id="muscleSelector" class="w-full p-4 border-2 border-slate-50 rounded-2xl focus:border-indigo-500 focus:ring-0 outline-none transition cursor-pointer text-slate-800 bg-slate-50 font-semibold text-lg">
+                        <option value="">-- Selecciona un músculo para ver imágenes --</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Área de Contenido -->
+        <div id="contentArea" class="hidden space-y-10 animate-fade-in">
+            
+            <!-- Ficha Técnica con Imagen Real -->
+            <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                <!-- Imagen Real y Diagrama -->
+                <div class="space-y-6">
+                    <div class="relative h-[450px] rounded-[2.5rem] overflow-hidden card-shadow group bg-slate-200">
+                        <img id="muscleRealImg" src="" alt="Referencia muscular real" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" style="display: none;" onload="this.style.display='block'; this.parentElement.classList.remove('loading-shimmer')">
+                        <div class="absolute inset-0 img-overlay flex items-end p-8">
+                            <div class="w-full">
+                                <h2 id="muscleNameLarge" class="text-4xl font-black text-white uppercase tracking-tighter"></h2>
+                                <div class="flex justify-between items-center mt-2">
+                                    <p id="viewLabel" class="text-indigo-400 font-bold text-sm tracking-widest uppercase"></p>
+                                    <span class="text-white/50 text-xs font-medium">Ref. Fotográfica Anatómica</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-3xl border border-slate-100 card-shadow flex items-center gap-8">
+                        <div id="muscleIllustration" class="w-32 h-32">
+                            <!-- SVG -->
+                        </div>
+                        <div>
+                            <span class="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1">Puntos de Inserción</span>
+                            <div class="flex items-center gap-2">
+                                <div id="muscleColorDot" class="w-3 h-3 rounded-full"></div>
+                                <span class="text-slate-700 font-bold">Localización en el Sistema</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información Detallada -->
+                <div class="bg-white p-10 rounded-[2.5rem] card-shadow border border-slate-100 flex flex-col justify-center">
+                    <div class="inline-block bg-indigo-50 text-indigo-600 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6 w-fit">Análisis Biomecánico</div>
+                    
+                    <h3 class="text-2xl font-bold text-slate-900 mb-4">Mecánica de Contracción</h3>
+                    <p id="muscleFunction" class="text-slate-600 leading-relaxed text-lg mb-8"></p>
+                    
+                    <hr class="border-slate-100 mb-8">
+                    
+                    <h3 class="text-2xl font-bold text-slate-900 mb-4 italic">Aplicación Técnica en el Deporte</h3>
+                    <div class="p-6 bg-slate-900 rounded-3xl text-slate-300 border-l-4 border-indigo-500">
+                        <p id="sportContext" class="leading-relaxed"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Galería de Entrenamiento -->
+            <div class="grid md:grid-cols-2 gap-10">
+                <!-- Fortalecimiento -->
+                <div class="bg-white rounded-[2.5rem] card-shadow border border-slate-100 overflow-hidden">
+                    <div class="p-8 pb-4 bg-emerald-50/30">
+                        <div class="flex items-center gap-4">
+                            <div class="bg-emerald-100 p-3 rounded-2xl text-emerald-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-slate-800">Fase de Fortalecimiento</h3>
+                        </div>
+                    </div>
+                    
+                    <div class="px-8 pb-8 pt-6">
+                        <div class="rounded-3xl overflow-hidden h-64 mb-6 bg-slate-100 relative group">
+                            <img id="strengthImg" src="" alt="Imagen de ejercicio de fuerza" class="w-full h-full object-cover transition-transform group-hover:scale-105">
+                            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-slate-800 uppercase shadow-sm">Imagen Real</div>
+                        </div>
+                        <h4 id="strengthTitle" class="text-xl font-bold text-slate-900 mb-2"></h4>
+                        <p id="strengthDesc" class="text-slate-500 leading-relaxed"></p>
+                    </div>
+                </div>
+
+                <!-- Estiramiento -->
+                <div class="bg-white rounded-[2.5rem] card-shadow border border-slate-100 overflow-hidden">
+                    <div class="p-8 pb-4 bg-orange-50/30">
+                        <div class="flex items-center gap-4">
+                            <div class="bg-orange-100 p-3 rounded-2xl text-orange-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-slate-800">Fase de Flexibilidad</h3>
+                        </div>
+                    </div>
+                    
+                    <div class="px-8 pb-8 pt-6">
+                        <div class="rounded-3xl overflow-hidden h-64 mb-6 bg-slate-100 relative group">
+                            <img id="stretchImg" src="" alt="Imagen de ejercicio de estiramiento" class="w-full h-full object-cover transition-transform group-hover:scale-105">
+                            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-slate-800 uppercase shadow-sm">Imagen Real</div>
+                        </div>
+                        <h4 id="stretchTitle" class="text-xl font-bold text-slate-900 mb-2"></h4>
+                        <p id="stretchDesc" class="text-slate-500 leading-relaxed"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estado Vacío -->
+        <div id="emptyState" class="text-center py-32 bg-white rounded-[4rem] card-shadow border border-slate-100">
+            <div class="relative w-40 h-40 mx-auto mb-10">
+                <div class="absolute inset-0 bg-indigo-50 rounded-full animate-pulse"></div>
+                <div class="relative w-full h-full flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                    </svg>
+                </div>
+            </div>
+            <h2 class="text-3xl font-black text-slate-800 mb-4">Visualizador de Anatomía Deportiva</h2>
+            <p class="text-slate-400 max-w-md mx-auto text-lg leading-relaxed">Selecciona un músculo para explorar su anatomía real, funciones mecánicas y protocolos de entrenamiento.</p>
+        </div>
+
+        <!-- Toast -->
+        <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-10 py-5 rounded-3xl shadow-2xl transform translate-y-48 transition-transform duration-500 flex items-center gap-4 z-50">
+            <div class="bg-indigo-500 p-1.5 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <span class="font-bold text-sm tracking-wide">¡Material copiado para compartir!</span>
+        </div>
+    </div>
+
+    <script>
+        const drawBody = (highlightPath = "") => `
+            <svg viewBox="0 0 100 120" class="w-full h-full">
+                <circle cx="50" cy="15" r="8" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="0.5"/>
+                <path d="M40 25 L60 25 L65 50 L35 50 Z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="0.5"/>
+                <path d="M38 25 L30 45 L34 47 L40 28" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="0.5"/>
+                <path d="M62 25 L70 45 L66 47 L60 28" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="0.5"/>
+                <path d="M38 52 L35 85 L44 85 L46 52" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="0.5"/>
+                <path d="M62 52 L65 85 L56 85 L54 52" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="0.5"/>
+                ${highlightPath}
+            </svg>
+        `;
+
+        const muscleData = {
+            "Bíceps Braquial": {
+                color: "#10b981",
+                view: "Vista Anterior",
+                realImg: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop", 
+                function: "Situado en la región anterior del brazo, es el principal flexor del codo y potente supinador del antebrazo. Cruza dos articulaciones (hombro y codo).",
+                sport: "Indispensable en escalada, remos y cualquier gesto de tracción o agarre en deportes de contacto.",
+                strength: { 
+                    name: "Curl con Mancuernas", 
+                    img: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?q=80&w=600&auto=format&fit=crop",
+                    desc: "Flexión de codo aislada manteniendo el torso estable para maximizar la tensión muscular." 
+                },
+                stretch: { 
+                    name: "Extensión con Rotación", 
+                    img: "https://images.unsplash.com/photo-1518611012118-2969c6a2c7a7?q=80&w=600&auto=format&fit=crop",
+                    desc: "Mano apoyada en pared por detrás del cuerpo para elongar la cabeza larga del bíceps." 
+                },
+                highlight: `<path d="M37 28 L41 45 M59 45 L63 28" stroke="#10b981" stroke-width="4" fill="none" class="muscle-highlight"/>`
+            },
+            "Cuádriceps": {
+                color: "#3b82f6",
+                view: "Vista Anterior",
+                realImg: "https://images.unsplash.com/photo-1434608519344-49d77a699e1d?q=80&w=800&auto=format&fit=crop",
+                function: "Conjunto de cuatro cabezas musculares en el muslo anterior. Es el extensor de rodilla más potente y estabilizador clave de la bipedestación.",
+                sport: "Motor en el ciclismo, el despegue en el salto de altura y el frenado excéntrico en descensos de montaña.",
+                strength: { 
+                    name: "Sentadilla (Squat)", 
+                    img: "https://images.unsplash.com/photo-1574673002594-39d99741f176?q=80&w=600&auto=format&fit=crop",
+                    desc: "Movimiento funcional de triple extensión (cadera, rodilla y tobillo) con carga axial." 
+                },
+                stretch: { 
+                    name: "Flexión Femoral", 
+                    img: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=600&auto=format&fit=crop",
+                    desc: "Talón al glúteo de pie, manteniendo la retroversión pélvica para estirar el recto anterior." 
+                },
+                highlight: `<path d="M38 54 L46 54 L44 70 L37 70 Z M54 54 L62 54 L63 70 L56 70 Z" fill="#3b82f6" class="muscle-highlight"/>`
+            },
+            "Isquiotibiales": {
+                color: "#6366f1",
+                view: "Vista Posterior",
+                realImg: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=800&auto=format&fit=crop",
+                function: "Grupo posterior del muslo encargado de la flexión de rodilla y extensión de cadera. Actúan como el freno natural en la carrera.",
+                sport: "Controlan la fase de vuelo en atletismo y estabilizan la rodilla en cambios de dirección bruscos.",
+                strength: { 
+                    name: "Peso Muerto", 
+                    img: "https://images.unsplash.com/photo-1534367610401-9f5ed68180aa?q=80&w=600&auto=format&fit=crop",
+                    desc: "Extensión de cadera con carga manteniendo la espalda neutra y piernas semi-rígidas." 
+                },
+                stretch: { 
+                    name: "Flexión de Tronco", 
+                    img: "https://images.unsplash.com/photo-1510832198440-a52376950479?q=80&w=600&auto=format&fit=crop",
+                    desc: "Inclinación anterior desde la cadera con piernas estiradas para elongar la cadena posterior." 
+                },
+                highlight: `<path d="M38 54 L46 54 L44 75 L37 75 Z M54 54 L62 54 L63 75 L56 75 Z" fill="#6366f1" class="muscle-highlight" opacity="0.6"/>`
+            },
+            "Pectoral Mayor": {
+                color: "#ef4444",
+                view: "Vista Anterior",
+                realImg: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop",
+                function: "Músculo ancho que forma la cara anterior del tórax. Realiza aducción y rotación interna del brazo.",
+                sport: "Esencial en el saque de tenis, el golpeo en boxeo y la fase de empuje en natación.",
+                strength: { 
+                    name: "Press de Banca", 
+                    img: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=600&auto=format&fit=crop",
+                    desc: "Empuje horizontal cargando una barra o mancuernas sobre el pecho." 
+                },
+                stretch: { 
+                    name: "Apertura en Marco", 
+                    img: "https://images.unsplash.com/photo-1518611012118-2969c6a2c7a7?q=80&w=600&auto=format&fit=crop",
+                    desc: "Uso de un punto fijo para realizar abducción horizontal del hombro bajo tensión controlada." 
+                },
+                highlight: `<path d="M40 27 Q50 22 60 27 L60 38 Q50 42 40 38 Z" fill="#ef4444" class="muscle-highlight"/>`
+            },
+            "Gastrocnemio (Gemelos)": {
+                color: "#d946ef",
+                view: "Vista Posterior",
+                realImg: "https://images.unsplash.com/photo-1434608519344-49d77a699e1d?q=80&w=800&auto=format&fit=crop",
+                function: "Forma la pantorrilla. Su función es la flexión plantar del pie y colabora en la flexión de rodilla.",
+                sport: "Motor del despegue en atletismo, voleibol y potencia en el pedaleo.",
+                strength: { 
+                    name: "Elevación de Talones", 
+                    img: "https://images.unsplash.com/photo-1590239068531-9f20c193f773?q=80&w=600&auto=format&fit=crop",
+                    desc: "Extensión de tobillo concentrada de pie para cargar el peso sobre el metatarso." 
+                },
+                stretch: { 
+                    name: "Estiramiento en Escalón", 
+                    img: "https://images.unsplash.com/photo-1552196564-972d46387352?q=80&w=600&auto=format&fit=crop",
+                    desc: "Dejar caer el peso del talón por debajo del nivel de la planta del pie." 
+                },
+                highlight: `<path d="M42 75 Q50 72 58 75 L56 95 Q50 97 44 95 Z" fill="#d946ef" class="muscle-highlight" opacity="0.6"/>`
+            },
+            "Tríceps Braquial": {
+                color: "#f472b6",
+                view: "Vista Posterior",
+                realImg: "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?q=80&w=800&auto=format&fit=crop",
+                function: "Músculo de tres cabezas en la cara posterior del brazo. Es el extensor único del codo.",
+                sport: "La potencia del lanzamiento en balonmano y la estabilización del brazo en el bloqueo de voleibol.",
+                strength: { 
+                    name: "Extensión tras nuca", 
+                    img: "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=600&auto=format&fit=crop",
+                    desc: "Extensión vertical del brazo sobre la cabeza aislando la porción larga del tríceps." 
+                },
+                stretch: { 
+                    name: "Tracción por encima", 
+                    img: "https://images.unsplash.com/photo-1599058917233-57c0e6843651?q=80&w=600&auto=format&fit=crop",
+                    desc: "Flexión de codo sobre la cabeza, empujando con la mano contraria hacia abajo." 
+                },
+                highlight: `<path d="M36 28 L40 45 M60 45 L64 28" stroke="#f472b6" stroke-width="4" fill="none" class="muscle-highlight" opacity="0.6"/>`
+            }
+        };
+
+        const selector = document.getElementById('muscleSelector');
+        const contentArea = document.getElementById('contentArea');
+        const emptyState = document.getElementById('emptyState');
+        const muscleIllustration = document.getElementById('muscleIllustration');
+        const muscleRealImg = document.getElementById('muscleRealImg');
+        const muscleNameLarge = document.getElementById('muscleNameLarge');
+        const viewLabel = document.getElementById('viewLabel');
+        const muscleFunction = document.getElementById('muscleFunction');
+        const sportContext = document.getElementById('sportContext');
+        const strengthImg = document.getElementById('strengthImg');
+        const strengthTitle = document.getElementById('strengthTitle');
+        const strengthDesc = document.getElementById('strengthDesc');
+        const stretchImg = document.getElementById('stretchImg');
+        const stretchTitle = document.getElementById('stretchTitle');
+        const stretchDesc = document.getElementById('stretchDesc');
+        const muscleColorDot = document.getElementById('muscleColorDot');
+
+        // Poblar selector
+        Object.keys(muscleData).forEach(name => {
+            const opt = document.createElement('option');
+            opt.value = name;
+            opt.textContent = name;
+            selector.appendChild(opt);
+        });
+
+        selector.addEventListener('change', (e) => {
+            const val = e.target.value;
+            if (val) {
+                const d = muscleData[val];
+                
+                // Efecto de carga
+                muscleRealImg.parentElement.classList.add('loading-shimmer');
+                muscleRealImg.style.display = 'none';
+                
+                // Actualizar textos e imágenes
+                muscleNameLarge.textContent = val;
+                viewLabel.textContent = d.view;
+                muscleFunction.textContent = d.function;
+                sportContext.textContent = d.sport;
+                muscleRealImg.src = d.realImg;
+                muscleColorDot.style.backgroundColor = d.color;
+                
+                // Imágenes de ejercicios
+                strengthImg.src = d.strength.img;
+                strengthTitle.textContent = d.strength.name;
+                strengthDesc.textContent = d.strength.desc;
+                
+                stretchImg.src = d.stretch.img;
+                stretchTitle.textContent = d.stretch.name;
+                stretchDesc.textContent = d.stretch.desc;
+                
+                // SVG
+                muscleIllustration.innerHTML = drawBody(d.highlight);
+
+                emptyState.classList.add('hidden');
+                contentArea.classList.remove('hidden');
+                
+                // Reiniciar animación
+                contentArea.classList.remove('animate-fade-in');
+                void contentArea.offsetWidth;
+                contentArea.classList.add('animate-fade-in');
+            } else {
+                contentArea.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('copyBtn').addEventListener('click', () => {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-48');
+            setTimeout(() => toast.classList.add('translate-y-48'), 3000);
+        });
+    </script>
+</body>
+</html>
